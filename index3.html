@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en" class=""> <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NewsPulse - Your Modern News Source</title>
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; border: 2px solid transparent; background-clip: content-box; }
+        .dark ::-webkit-scrollbar-thumb { background-color: #475569; }
+        ::-webkit-scrollbar-thumb:hover { background-color: #94a3b8; }
+        .dark ::-webkit-scrollbar-thumb:hover { background-color: #64748b; }
+
+        .card-hover-effect {
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        }
+        .card-hover-effect:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+        }
+        .dark .card-hover-effect:hover {
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2), 0 4px 6px -2px rgba(0,0,0,0.1);
+        }
+
+
+        .category-tag {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 0.375rem; /* rounded-md */
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.025em;
+        }
+        .category-general { @apply bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300; }
+        .category-highlight { @apply bg-sky-100 text-sky-700 dark:bg-sky-700 dark:text-sky-200; }
+        .category-tech { @apply bg-blue-100 text-blue-700 dark:bg-blue-700 dark:text-blue-200; }
+        .category-world { @apply bg-emerald-100 text-emerald-700 dark:bg-emerald-700 dark:text-emerald-200; }
+        .category-business { @apply bg-amber-100 text-amber-700 dark:bg-amber-700 dark:text-amber-200; }
+        .category-opinion { @apply bg-purple-100 text-purple-700 dark:bg-purple-700 dark:text-purple-200; }
+        .category-video { @apply bg-red-100 text-red-700 dark:bg-red-700 dark:text-red-200; }
+
+
+        #searchModal { transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out; }
+        #searchModal.hidden { opacity: 0; visibility: hidden; }
+        #searchModal:not(.hidden) { opacity: 1; visibility: visible; }
+
+        /* Expandable card content styles */
+        .expandable-card-content {
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s ease-in-out;
+        }
+        .expandable-card-content.is-expanded {
+            max-height: 250px; /* Adjust as needed, or use JS to set scrollHeight, capped */
+            opacity: 1;
+        }
+        .article-card .card-image-wrapper {
+            aspect-ratio: 16 / 9; /* Default aspect ratio for images */
+        }
+         .article-card.small-card .card-image-wrapper {
+            aspect-ratio: 4 / 3;
+        }
+        .article-card.large-hero-card .card-image-wrapper {
+            aspect-ratio: 2 / 1; /* Wider for hero */
+        }
+
+        /* Section title styling */
+        .section-title {
+            @apply text-2xl font-semibold text-text-main dark:text-text-main-dark mb-1 flex items-center;
+        }
+        .section-title i {
+            @apply mr-3 text-xl text-primary dark:text-primary-light;
+        }
+        .section-subtitle {
+            @apply text-sm text-text-muted dark:text-text-muted-dark mb-6;
+        }
+
+        /* Swiper button styling */
+        .hero-swiper .swiper-button-next, .hero-swiper .swiper-button-prev {
+            color: white;
+            background-color: rgba(0,0,0,0.3);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            transition: background-color 0.3s ease;
+        }
+        .hero-swiper .swiper-button-next:hover, .hero-swiper .swiper-button-prev:hover {
+            background-color: rgba(0,0,0,0.5);
+        }
+        .hero-swiper .swiper-button-next::after, .hero-swiper .swiper-button-prev::after {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .hero-swiper .swiper-pagination-bullet-active {
+            background-color: var(--swiper-theme-color, #0ea5e9); /* Tailwind primary color */
+        }
+
+    </style>
+    <script>
+        tailwind.config = {
+          darkMode: 'class',
+          theme: {
+            extend: {
+              colors: {
+                primary: { light: '#38bdf8', DEFAULT: '#0ea5e9', dark: '#0284c7' }, // sky-400, sky-500, sky-600
+                'primary-text': { light: '#f8fafc', DEFAULT: '#e2e8f0', dark: '#cbd5e1' },
+                'background': { light: '#f8fafc', DEFAULT: '#f1f5f9', dark: '#0f172a' }, // slate-50, slate-100, slate-900
+                'card': { light: '#ffffff', DEFAULT: '#ffffff', dark: '#1e293b' }, // white, slate-800
+                'text-main': { light: '#1e293b', DEFAULT: '#1e293b', dark: '#e2e8f0' }, // slate-800, slate-200
+                'text-muted': { light: '#64748b', DEFAULT: '#64748b', dark: '#94a3b8' }, // slate-500, slate-400
+                'border-color': { light: '#e2e8f0', DEFAULT: '#e2e8f0', dark: '#334155' } // slate-200, slate-700
+              }
+            }
+          }
+        }
+    </script>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-text-main dark:text-text-main-dark antialiased transition-colors duration-300">
+
+    <header class="bg-card-light/80 dark:bg-card-dark/80 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-border-color-light/50 dark:border-border-color-dark/50">
+        <div class="container mx-auto px-4 lg:px-6">
+            <div class="flex justify-between items-center h-16"> 
+                <a href="#" class="text-2xl font-bold text-primary dark:text-primary-light flex items-center">
+                    <i class="fas fa-bolt mr-2"></i>NewsPulse
+                </a>
+                <nav class="hidden md:flex space-x-6 items-center">
+                    <a href="#" class="text-sm font-medium text-text-muted dark:text-text-muted-dark hover:text-primary dark:hover:text-primary-light transition-colors duration-200"><i class="fas fa-home mr-1"></i>Home</a>
+                    <a href="#latest" class="text-sm font-medium text-text-muted dark:text-text-muted-dark hover:text-primary dark:hover:text-primary-light transition-colors duration-200"><i class="far fa-clock mr-1"></i>Latest</a>
+                    <a href="#categories" class="text-sm font-medium text-text-muted dark:text-text-muted-dark hover:text-primary dark:hover:text-primary-light transition-colors duration-200"><i class="fas fa-th-large mr-1"></i>Categories</a>
+                    <a href="#world" class="text-sm font-medium text-text-muted dark:text-text-muted-dark hover:text-primary dark:hover:text-primary-light transition-colors duration-200"><i class="fas fa-globe-americas mr-1"></i>World</a>
+                    <a href="#tech" class="text-sm font-medium text-text-muted dark:text-text-muted-dark hover:text-primary dark:hover:text-primary-light transition-colors duration-200"><i class="fas fa-microchip mr-1"></i>Tech</a>
+                </nav>
+                <div class="flex items-center space-x-3 sm:space-x-4">
+                    <button id="searchIconBtn" aria-label="Open search" class="text-text-muted dark:text-text-muted-dark hover:text-primary dark:hover:text-primary-light transition-colors duration-200 p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700">
+                        <i class="fas fa-search fa-fw text-lg"></i>
+                    </button>
+                    <button id="darkModeToggle" aria-label="Toggle dark mode" class="text-text-muted dark:text-text-muted-dark hover:text-primary dark:hover:text-primary-light transition-colors duration-200 p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700">
+                        <i class="fas fa-moon fa-fw text-lg hidden"></i>
+                        <i class="fas fa-sun fa-fw text-lg hidden"></i>
+                    </button>
+                    <button class="md:hidden text-text-muted dark:text-text-muted-dark hover:text-primary dark:hover:text-primary-light p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700" id="mobileMenuBtn" aria-label="Open menu" aria-expanded="false">
+                        <i class="fas fa-bars fa-fw text-xl" id="menuIconOpen"></i>
+                        <i class="fas fa-times fa-fw text-xl hidden" id="menuIconClose"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="md:hidden hidden bg-card-light/95 dark:bg-card-dark/95 backdrop-blur-sm shadow-lg border-t border-border-color-light dark:border-border-color-dark" id="mobileMenu">
+            <nav class="px-4 pt-2 pb-4 space-y-1 sm:px-6">
+                <a href="#" class="block px-3 py-2 rounded-md text-base font-medium text-text-main dark:text-text-main-dark hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-primary dark:hover:text-primary-light"><i class="fas fa-home mr-2 w-5 text-center"></i>Home</a>
+                <a href="#latest" class="block px-3 py-2 rounded-md text-base font-medium text-text-main dark:text-text-main-dark hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-primary dark:hover:text-primary-light"><i class="far fa-clock mr-2 w-5 text-center"></i>Latest</a>
+                <a href="#categories" class="block px-3 py-2 rounded-md text-base font-medium text-text-main dark:text-text-main-dark hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-primary dark:hover:text-primary-light"><i class="fas fa-th-large mr-2 w-5 text-center"></i>Categories</a>
+                <a href="#world" class="block px-3 py-2 rounded-md text-base font-medium text-text-main dark:text-text-main-dark hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-primary dark:hover:text-primary-light"><i class="fas fa-globe-americas mr-2 w-5 text-center"></i>World</a>
+                <a href="#tech" class="block px-3 py-2 rounded-md text-base font-medium text-text-main dark:text-text-main-dark hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-primary dark:hover:text-primary-light"><i class="fas fa-microchip mr-2 w-5 text-center"></i>Tech</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 lg:px-6 py-8">
+
+        <section class="mb-12">
+          <div class="hero-swiper swiper rounded-lg overflow-hidden shadow-xl">
+            <div class="swiper-wrapper">
+              <div class="swiper-slide">
+                <div class="relative bg-card-light dark:bg-card-dark">
+                  <img src="https://placehold.co/1200x550/0ea5e9/white?text=Global+Summit+Highlights&font=Inter" alt="Global Summit on Climate Action" class="w-full object-cover h-[350px] sm:h-[450px] md:h-[550px]">
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent flex items-end p-6 md:p-8">
+                    <div>
+                      <span class="category-tag category-highlight mb-2">Lead Story</span>
+                      <h1 class="text-white text-2xl sm:text-3xl md:text-4xl font-bold leading-tight mb-2">Global Summit on Climate Action Concludes</h1>
+                      <p class="text-slate-200 text-sm md:text-base hidden md:block max-w-2xl">Leaders from around the world commit to new environmental reforms and sustainable practices.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="swiper-slide">
+                <div class="relative bg-card-light dark:bg-card-dark">
+                  <img src="https://placehold.co/1200x550/f97316/white?text=Tech+Innovations+2025&font=Inter" alt="Tech Giants Reveal 2025 Roadmaps" class="w-full object-cover h-[350px] sm:h-[450px] md:h-[550px]">
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent flex items-end p-6 md:p-8">
+                    <div>
+                      <span class="category-tag category-tech mb-2">Technology</span>
+                      <h1 class="text-white text-2xl sm:text-3xl md:text-4xl font-bold leading-tight mb-2">Tech Giants Reveal 2025 Roadmaps</h1>
+                      <p class="text-slate-200 text-sm md:text-base hidden md:block max-w-2xl">Innovations in AI, quantum computing, and sustainable technology lead the charge for the coming year.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="swiper-slide">
+                <div class="relative bg-card-light dark:bg-card-dark">
+                  <img src="https://placehold.co/1200x550/10b981/white?text=Space+Exploration+News&font=Inter" alt="New Discoveries in Space" class="w-full object-cover h-[350px] sm:h-[450px] md:h-[550px]">
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent flex items-end p-6 md:p-8">
+                    <div>
+                      <span class="category-tag category-world mb-2">Science</span>
+                      <h1 class="text-white text-2xl sm:text-3xl md:text-4xl font-bold leading-tight mb-2">Astronomers Announce Major Galactic Discovery</h1>
+                      <p class="text-slate-200 text-sm md:text-base hidden md:block max-w-2xl">A new telescope array has captured unprecedented images of a distant galaxy, offering new clues about the early universe.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="swiper-pagination"></div>
+            <div class="swiper-button-next"></div>
+            <div class="swiper-button-prev"></div>
+          </div>
+        </section>
+
+        <section id="latest" class="mb-16">
+            <h2 class="text-3xl md:text-4xl font-extrabold text-text-main dark:text-text-main-dark mb-2 flex items-center">
+                <i class="fas fa-fire mr-3 text-primary dark:text-primary-light"></i>Trending Now
+            </h2>
+            <p class="text-base md:text-lg text-text-muted dark:text-text-muted-dark mb-8">Stories making headlines right now.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="md:col-span-2 lg:col-span-2 bg-card-light dark:bg-card-dark rounded-lg shadow-lg overflow-hidden card-hover-effect border border-border-color-light dark:border-border-color-dark article-card large-hero-card" data-expandable-card>
+                    <a href="#" class="block group">
+                        <div class="card-image-wrapper overflow-hidden">
+                            <img src="https://placehold.co/800x450/ef4444/white?text=Election+Buzz&font=Inter" alt="Election Buzz" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                        </div>
+                        <div class="p-5">
+                            <span class="category-tag category-general mb-2"><i class="fas fa-landmark mr-1"></i>Politics</span>
+                            <h3 class="text-xl lg:text-2xl font-semibold mt-1 mb-2 text-text-main dark:text-text-main-dark group-hover:text-primary dark:group-hover:text-primary-light transition-colors duration-200 leading-tight">Election Buzz Intensifies as New Polls Emerge Across Key States</h3>
+                            <p class="text-text-muted dark:text-text-muted-dark text-sm mb-3 line-clamp-3 main-card-summary">The political landscape is shifting rapidly with recent survey data causing a stir among candidates and voters alike. Analysts are dissecting the implications for the upcoming debates and potential outcomes.</p>
+                            <div class="expandable-card-content">
+                                <p class="text-text-muted dark:text-text-muted-dark text-sm">Further details reveal that voter turnout is projected to be at an all-time high, with particular focus on suburban districts. Campaign strategists are re-evaluating their approaches in light of these new figures. Debates are scheduled for next week, promising further insights into key policy differences and candidate platforms.</p>
+                            </div>
+                            <div class="flex justify-between items-center mt-4">
+                                <div class="flex items-center text-xs text-text-muted dark:text-text-muted-dark">
+                                    <i class="fas fa-user-shield mr-1.5"></i>Johnathan Lee <span class="mx-2">•</span> <i class="far fa-calendar-alt mr-1.5"></i>May 19, 2025
+                                </div>
+                                <button class="expand-toggle text-xs text-primary dark:text-primary-light font-semibold hover:underline">
+                                    Read More <i class="fas fa-chevron-down text-xs ml-1 transform transition-transform duration-300"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="bg-card-light dark:bg-card-dark rounded-lg shadow-lg overflow-hidden card-hover-effect border border-border-color-light dark:border-border-color-dark article-card small-card" data-expandable-card>
+                    <a href="#" class="block group">
+                        <div class="card-image-wrapper overflow-hidden">
+                            <img src="https://placehold.co/600x400/8b5cf6/white?text=Sports+Upset&font=Inter" alt="Sports Upset" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                        </div>
+                        <div class="p-4">
+                            <span class="category-tag category-general mb-2"><i class="fas fa-futbol mr-1"></i>Sports</span>
+                            <h3 class="text-md font-semibold mt-1 mb-1 text-text-main dark:text-text-main-dark group-hover:text-primary dark:group-hover:text-primary-light transition-colors duration-200 leading-tight">Underdogs Clinch Championship Title in Stunning Upset</h3>
+                            <p class="text-text-muted dark:text-text-muted-dark text-xs mb-2 line-clamp-2">A surprising turn of events in the final match leads to an unexpected victory against the reigning champions.</p>
+                            <div class="expandable-card-content">
+                                <p class="text-text-muted dark:text-text-muted-dark text-xs">The winning goal came in the final seconds of overtime, sending fans into a frenzy. The team captain dedicated the win to their late coach.</p>
+                            </div>
+                            <div class="flex justify-between items-center mt-3">
+                                <p class="text-xs text-text-muted dark:text-text-muted-dark"><i class="fas fa-user-ninja mr-1"></i>Maria Sanchez</p>
+                                <button class="expand-toggle text-xs text-primary dark:text-primary-light font-semibold hover:underline">
+                                    Read More <i class="fas fa-chevron-down text-xs ml-1 transform transition-transform duration-300"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="bg-card-light dark:bg-card-dark rounded-lg shadow-lg card-hover-effect border border-border-color-light dark:border-border-color-dark article-card" data-expandable-card> <a href="#" class="block group p-5">
+                        <span class="category-tag category-tech mb-2"><i class="fas fa-rocket mr-1"></i>Space Tech</span>
+                        <h3 class="text-md font-semibold mt-1 mb-2 text-text-main dark:text-text-main-dark group-hover:text-primary dark:group-hover:text-primary-light transition-colors duration-200 leading-tight">New Space Telescope Reveals Stunning Galactic Images Never Seen Before</h3>
+                        <p class="text-text-muted dark:text-text-muted-dark text-sm mb-3 line-clamp-3">Astronomers are thrilled by the clarity and depth of the first images captured by the next-generation telescope, opening new windows into cosmic history.</p>
+                        <div class="expandable-card-content">
+                            <p class="text-text-muted dark:text-text-muted-dark text-sm">These images could reshape our understanding of early galaxy formation and the distribution of dark matter. The telescope is expected to operate for at least a decade.</p>
+                        </div>
+                        <div class="flex justify-between items-center mt-3">
+                            <p class="text-xs text-text-muted dark:text-text-muted-dark"><i class="far fa-user mr-1"></i>Dr. Eva Rostova</p>
+                             <button class="expand-toggle text-xs text-primary dark:text-primary-light font-semibold hover:underline">
+                                Read More <i class="fas fa-chevron-down text-xs ml-1 transform transition-transform duration-300"></i>
+                            </button>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="categories" class="mb-16">
+            <h2 class="text-3xl md:text-4xl font-extrabold text-text-main dark:text-text-main-dark mb-2 flex items-center">
+                <i class="fas fa-award mr-3 text-primary dark:text-primary-light"></i>Editor's Picks
+            </h2>
+            <p class="text-base md:text-lg text-text-muted dark:text-text-muted-dark mb-8">Handpicked stories by our editorial team, offering depth and perspective.</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-card-light dark:bg-card-dark rounded-lg shadow-lg overflow-hidden card-hover-effect border-2 border-primary/50 dark:border-primary-light/50 article-card" data-expandable-card>
+                    <a href="#" class="block group">
+                        <div class="card-image-wrapper overflow-hidden">
+                             <img src="https://placehold.co/700x400/06b6d4/white?text=Deep+Dive+Analysis&font=Inter" alt="Deep Dive Analysis" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                        </div>
+                        <div class="p-5">
+                            <span class="category-tag category-highlight mb-2"><i class="fas fa-search-plus mr-1"></i>In-Depth</span>
+                            <h3 class="text-lg font-semibold mt-1 mb-2 text-text-main dark:text-text-main-dark group-hover:text-primary dark:group-hover:text-primary-light transition-colors duration-200">The Future of Urban Mobility: A Comprehensive Deep Dive</h3>
+                            <p class="text-text-muted dark:text-text-muted-dark text-sm mb-3 line-clamp-3">Exploring sustainable transport solutions, smart city integrations, and the socio-economic impacts changing how we move within metropolitan areas.</p>
+                            <div class="expandable-card-content">
+                                <p class="text-text-muted dark:text-text-muted-dark text-sm">Autonomous vehicles, hyperloop concepts, drone deliveries, and integrated public transit systems are no longer just science fiction. This report examines their feasibility and challenges.</p>
+                            </div>
+                            <div class="flex justify-between items-center mt-3">
+                                <p class="text-xs text-text-muted dark:text-text-muted-dark"><i class="far fa-user-circle mr-1"></i>Editorial Team</p>
+                                <button class="expand-toggle text-xs text-primary dark:text-primary-light font-semibold hover:underline">
+                                    Read More <i class="fas fa-chevron-down text-xs ml-1 transform transition-transform duration-300"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="bg-card-light dark:bg-card-dark rounded-lg shadow-lg overflow-hidden card-hover-effect border border-border-color-light dark:border-border-color-dark article-card small-card" data-expandable-card>
+                    <a href="#" class="block group">
+                        <div class="card-image-wrapper overflow-hidden">
+                             <img src="https://placehold.co/600x450/ec4899/white?text=Art+Scene+Revival&font=Inter" alt="Art Scene Revival" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                        </div>
+                        <div class="p-4">
+                            <span class="category-tag category-general mb-2"><i class="fas fa-palette mr-1"></i>Culture</span>
+                            <h3 class="text-md font-semibold mt-1 mb-1 text-text-main dark:text-text-main-dark group-hover:text-primary dark:group-hover:text-primary-light">Revitalizing Local Art Scenes Post-Pandemic: Challenges & Triumphs</h3>
+                             <div class="expandable-card-content mt-1">
+                                <p class="text-text-muted dark:text-text-muted-dark text-xs line-clamp-none">New initiatives, digital platforms, and community support are bringing galleries, artists, and performers back to the forefront after a challenging period.</p>
+                            </div>
+                            <div class="flex justify-between items-center mt-3">
+                                <p class="text-xs text-text-muted dark:text-text-muted-dark"><i class="far fa-user mr-1"></i>Aisha Khan</p>
+                                <button class="expand-toggle text-xs text-primary dark:text-primary-light font-semibold hover:underline">
+                                    Show <span class="toggle-text">More</span> <i class="fas fa-chevron-down text-xs ml-1 transform transition-transform duration-300"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="bg-card-light dark:bg-card-dark rounded-lg shadow-lg overflow-hidden card-hover-effect border border-border-color-light dark:border-border-color-dark article-card small-card" data-expandable-card>
+                     <a href="#" class="block group">
+                        <div class="card-image-wrapper overflow-hidden">
+                            <img src="https://placehold.co/600x450/6366f1/white?text=Ethical+AI+Debate&font=Inter" alt="Ethical AI Debate" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                        </div>
+                        <div class="p-4">
+                            <span class="category-tag category-tech mb-2"><i class="fas fa-brain mr-1"></i>AI Ethics</span>
+                            <h3 class="text-md font-semibold mt-1 mb-1 text-text-main dark:text-text-main-dark group-hover:text-primary dark:group-hover:text-primary-light">Navigating the Complexities of Ethical AI Development & Deployment</h3>
+                            <div class="expandable-card-content mt-1">
+                                <p class="text-text-muted dark:text-text-muted-dark text-xs line-clamp-none">A look into the evolving frameworks, ongoing discussions, and critical considerations shaping responsible artificial intelligence for a better future.</p>
+                            </div>
+                            <div class="flex justify-between items-center mt-3">
+                                <p class="text-xs text-text-muted dark:text-text-muted-dark "><i class="far fa-user mr-1"></i>Dr. Ben Carter</p>
+                                <button class="expand-toggle text-xs text-primary dark:text-primary-light font-semibold hover:underline">
+                                   Show <span class="toggle-text">More</span> <i class="fas fa-chevron-down text-xs ml-1 transform transition-transform duration-300"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="tech" class="mb-16">
+            <h2 class="text-3xl md:text-4xl font-extrabold text-text-main dark:text-text-main-dark mb-2 flex items-center">
+                <i class="fas fa-laptop-code mr-3 text-primary dark:text-primary-light"></i>Technology Today
+            </h2>
+            <p class="text-base md:text-lg text-text-muted dark:text-text-muted-dark mb-8">Latest innovations, reviews, and insights from the tech world.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="lg:col-span-2 bg-card-light dark:bg-card-dark rounded-lg shadow-lg overflow-hidden card-hover-effect border border-border-color-light dark:border-border-color-dark article-card large-hero-card" data-expandable-card>
+                    <a href="#" class="block group">
+                        <div class="card-image-wrapper overflow-hidden">
+                            <img src="https://placehold.co/800x400/1d4ed8/white?text=Next+Gen+Gadgets+2025&font=Inter" alt="Next Gen Gadgets 2025" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                        </div>
+                        <div class="p-5">
+                            <span class="category-tag category-tech mb-2"><i class="fas fa-mobile-alt mr-1"></i>Gadgets</span>
+                            <h3 class="text-xl lg:text-2xl font-semibold mt-1 mb-2 text-text-main dark:text-text-main-dark group-hover:text-primary dark:group-hover:text-primary-light">Unveiling Next-Gen Gadgets: What to Expect in 2025 and Beyond</h3>
+                            <p class="text-text-muted dark:text-text-muted-dark text-sm mb-3 line-clamp-2 main-card-summary">From foldable screens becoming mainstream to AI-powered personal assistants with unprecedented capabilities, the future of personal technology is more exciting than ever.</p>
+                            <div class="expandable-card-content">
+                                <p class="text-text-muted dark:text-text-muted-dark text-sm">Battery life improvements, seamless ecosystem integration, and sustainable manufacturing practices are key focus areas for leading tech companies. Expect smarter homes, more immersive AR/VR, and breakthroughs in wearable health tech.</p>
+                            </div>
+                            <div class="flex justify-between items-center mt-4">
+                                <p class="text-xs text-text-muted dark:text-text-muted-dark"><i class="far fa-user mr-1"></i>Tech Today Staff</p>
+                                <button class="expand-toggle text-xs text-primary dark:text-primary-light font-semibold hover:underline">
+                                    Read More <i class="fas fa-chevron-down text-xs ml-1 transform transition-transform duration-300"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                 <div class="bg-card-light dark:bg-card-dark rounded-lg shadow-lg overflow-hidden card-hover-effect border border-border-color-light dark:border-border-color-dark article-card small-card" data-expandable-card>
+                    <a href="#" class="block group">
+                        <div class="card-image-wrapper overflow-hidden">
+                             <img src="https://placehold.co/600x400/0e7490/white?text=Cybersecurity+Alert&font=Inter" alt="Cybersecurity Alert" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                        </div>
+                        <div class="p-4">
+                            <span class="category-tag category-tech mb-2"><i class="fas fa-shield-alt mr-1"></i>Security</span>
+                            <h3 class="text-md font-semibold mt-1 mb-1 text-text-main dark:text-text-main-dark group-hover:text-primary dark:group-hover:text-primary-light">The Rising Tide of Sophisticated Cybersecurity Threats</h3>
+                             <div class="expandable-card-content mt-1">
+                                <p class="text-text-muted dark:text-text-muted-dark text-xs line-clamp-none">How to protect yourself and your business in an increasingly connected and vulnerable digital world. Experts weigh in on new attack vectors and defensive strategies.</p>
+                            </div>
+                            <div class="flex justify-between items-center mt-3">
+                                <p class="text-xs text-text-muted dark:text-text-muted-dark"><i class="far fa-user mr-1"></i>Kenji Tanaka</p>
+                                <button class="expand-toggle text-xs text-primary dark:text-primary-light font-semibold hover:underline">
+                                    Show <span class="toggle-text">More</span> <i class="fas fa-chevron-down text-xs ml-1 transform transition-transform duration-300"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="bg-card-light dark:bg-card-dark rounded-lg shadow-lg card-hover-effect border border-border-color-light dark:border-border-color-dark article-card" data-expandable-card> <a href="#" class="block group p-5">
+                        <span class="category-tag category-tech mb-2"><i class="fas fa-code-branch mr-1"></i>Software Dev</span>
+                        <h3 class="text-md font-semibold mt-1 mb-2 text-text-main dark:text-text-main-dark group-hover:text-primary dark:group-hover:text-primary-light">Low-Code Platforms: Democratizing App Development or a Developer's Bane?</h3>
+                        <p class="text-text-muted dark:text-text-muted-dark text-sm mb-3 line-clamp-3">Examining the pros and cons of the low-code/no-code revolution for businesses, citizen developers, and traditional software engineers.</p>
+                        <div class="expandable-card-content">
+                            <p class="text-text-muted dark:text-text-muted-dark text-sm">While speeding up development for simple applications, concerns about scalability, customization, vendor lock-in, and long-term maintainability remain pertinent.</p>
+                        </div>
+                        <div class="flex justify-between items-center mt-3">
+                            <p class="text-xs text-text-muted dark:text-text-muted-dark"><i class="far fa-user mr-1"></i>Priya Sharma</p>
+                            <button class="expand-toggle text-xs text-primary dark:text-primary-light font-semibold hover:underline">
+                                Read More <i class="fas fa-chevron-down text-xs ml-1 transform transition-transform duration-300"></i>
+                            </button>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="world" class="mb-16">
+            <h2 class="text-3xl md:text-4xl font-extrabold text-text-main dark:text-text-main-dark mb-2 flex items-center">
+                <i class="fas fa-globe-europe mr-3 text-primary dark:text-primary-light"></i>World News
+            </h2>
+            <p class="text-base md:text-lg text-text-muted dark:text-text-muted-dark mb-8">Global events, international relations, and stories from around the planet.</p>
+             <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <div class="lg:col-span-2 bg-card-light dark:bg-card-dark rounded-lg shadow-lg overflow-hidden card-hover-effect border border-border-color-light dark:border-border-color-dark article-card large-hero-card" data-expandable-card>
+                    <a href="#" class="block group">
+                        <div class="card-image-wrapper overflow-hidden">
+                            <img src="https://placehold.co/800x400/059669/white?text=Diplomatic+Breakthrough&font=Inter" alt="Diplomatic Breakthrough" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                        </div>
+                        <div class="p-5">
+                            <span class="category-tag category-world mb-2"><i class="fas fa-handshake mr-1"></i>Diplomacy</span>
+                            <h3 class="text-xl lg:text-2xl font-semibold mt-1 mb-2 text-text-main dark:text-text-main-dark group-hover:text-primary dark:group-hover:text-primary-light">Key Diplomatic Talks Conclude with Cautious Optimism and New Pacts</h3>
+                            <p class="text-text-muted dark:text-text-muted-dark text-sm mb-3 line-clamp-3 main-card-summary">Negotiators report progress on several fronts, including trade and security, but acknowledge significant hurdles remain in achieving lasting peace agreements in volatile regions.</p>
+                            <div class="expandable-card-content">
+                                <p class="text-text-muted dark:text-text-muted-dark text-sm">Trade agreements, border dispute resolutions, and collaborative climate initiatives were central to the discussions. Observers note that while concrete steps have been made, implementation and verification will be crucial in the coming months.</p>
+                            </div>
+                             <div class="flex justify-between items-center mt-4">
+                                <p class="text-xs text-text-muted dark:text-text-muted-dark"><i class="far fa-user mr-1"></i>International Desk</p>
+                                <button class="expand-toggle text-xs text-primary dark:text-primary-light font-semibold hover:underline">
+                                    Read More <i class="fas fa-chevron-down text-xs ml-1 transform transition-transform duration-300"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="bg-card-light dark:bg-card-dark rounded-lg shadow-lg overflow-hidden card-hover-effect border border-border-color-light dark:border-border-color-dark article-card small-card" data-expandable-card>
+                     <a href="#" class="block group">
+                        <div class="card-image-wrapper overflow-hidden">
+                           <img src="https://placehold.co/600x450/16a34a/white?text=Economic+Shift+Globally&font=Inter" alt="Economic Shift Globally" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                        </div>
+                        <div class="p-4">
+                            <span class="category-tag category-world mb-2"><i class="fas fa-chart-line mr-1"></i>Economy</span>
+                            <h3 class="text-md font-semibold mt-1 mb-1 text-text-main dark:text-text-main-dark group-hover:text-primary dark:group-hover:text-primary-light">Emerging Economies Show Surprising Resilience Amid Global Slowdown</h3>
+                            <div class="expandable-card-content mt-1">
+                                <p class="text-text-muted dark:text-text-muted-dark text-xs line-clamp-none">Diverse growth drivers, including domestic demand and tech adoption, are helping some nations outperform expectations despite international headwinds.</p>
+                            </div>
+                            <div class="flex justify-between items-center mt-3">
+                                <p class="text-xs text-text-muted dark:text-text-muted-dark"><i class="far fa-user mr-1"></i>Global Economics Team</p>
+                                <button class="expand-toggle text-xs text-primary dark:text-primary-light font-semibold hover:underline">
+                                    Show <span class="toggle-text">More</span> <i class="fas fa-chevron-down text-xs ml-1 transform transition-transform duration-300"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                 <div class="bg-card-light dark:bg-card-dark rounded-lg shadow-lg overflow-hidden card-hover-effect border border-border-color-light dark:border-border-color-dark article-card small-card" data-expandable-card>
+                     <a href="#" class="block group">
+                        <div class="card-image-wrapper overflow-hidden">
+                           <img src="https://placehold.co/600x450/22c55e/white?text=Cultural+Exchange+Impact&font=Inter" alt="Cultural Exchange Impact" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                        </div>
+                        <div class="p-4">
+                            <span class="category-tag category-world mb-2"><i class="fas fa-theater-masks mr-1"></i>Culture</span>
+                            <h3 class="text-md font-semibold mt-1 mb-1 text-text-main dark:text-text-main-dark group-hover:text-primary dark:group-hover:text-primary-light">Global Cultural Exchange Programs Foster Understanding and Cooperation</h3>
+                             <div class="expandable-card-content mt-1">
+                                <p class="text-text-muted dark:text-text-muted-dark text-xs line-clamp-none">New and expanded initiatives aim to bridge divides, promote cross-cultural dialogue, and support artistic collaboration on an international scale.</p>
+                            </div>
+                            <div class="flex justify-between items-center mt-3">
+                                <p class="text-xs text-text-muted dark:text-text-muted-dark"><i class="far fa-user mr-1"></i>UNESCO Press</p>
+                                <button class="expand-toggle text-xs text-primary dark:text-primary-light font-semibold hover:underline">
+                                    Show <span class="toggle-text">More</span> <i class="fas fa-chevron-down text-xs ml-1 transform transition-transform duration-300"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-16">
+            <h2 class="text-3xl md:text-4xl font-extrabold text-text-main dark:text-text-main-dark mb-2 flex items-center">
+                <i class="fas fa-feather-alt mr-3 text-primary dark:text-primary-light"></i>Opinion & Columns
+            </h2>
+            <p class="text-base md:text-lg text-text-muted dark:text-text-muted-dark mb-8">Thought-provoking perspectives from our columnists and guest writers.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-card-light dark:bg-card-dark rounded-lg shadow-lg card-hover-effect border border-border-color-light dark:border-border-color-dark article-card" data-expandable-card>
+                    <div class="p-6 group"> {/* Removed <a> tag from wrapping entire card, link is now on title */}
+                        <div class="flex items-center mb-4">
+                            <img src="https://placehold.co/64x64/7c3aed/white?text=JS&font=Inter" alt="Author Jane Smith" class="w-12 h-12 rounded-full mr-4 object-cover">
+                            <div>
+                                <h4 class="font-semibold text-text-main dark:text-text-main-dark">Jane Smith</h4>
+                                <p class="text-xs text-text-muted dark:text-text-muted-dark">Senior Political Analyst</p>
+                            </div>
+                        </div>
+                        <span class="category-tag category-opinion mb-2"><i class="fas fa-comment-dots mr-1"></i>Viewpoint</span>
+                        <a href="#" class="block">
+                            <h3 class="text-lg font-semibold mt-1 mb-2 text-text-main dark:text-text-main-dark hover:text-primary dark:hover:text-primary-light transition-colors duration-200">The Nuance of Modern Political Discourse: Finding Common Ground</h3>
+                        </a>
+                        <p class="text-text-muted dark:text-text-muted-dark text-sm mb-3 line-clamp-4">Beyond the headlines and soundbites, a deeper look at the complexities shaping today's political conversations and the increasingly difficult search for common ground in a polarized world.</p>
+                        <div class="expandable-card-content">
+                            <p class="text-text-muted dark:text-text-muted-dark text-sm">It's crucial to engage with differing views constructively, understand underlying values, and foster a healthier democracy through respectful dialogue rather than echo chambers.</p>
+                        </div>
+                        <div class="flex justify-between items-center mt-4">
+                            <p class="text-xs text-text-muted dark:text-text-muted-dark"><i class="far fa-calendar-alt mr-1"></i>May 18, 2025</p>
+                            <button class="expand-toggle text-xs text-primary dark:text-primary-light font-semibold hover:underline">
+                                Read More <i class="fas fa-chevron-down text-xs ml-1 transform transition-transform duration-300"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-card-light dark:bg-card-dark rounded-lg shadow-lg card-hover-effect border border-border-color-light dark:border-border-color-dark article-card" data-expandable-card>
+                     <div class="p-6 group">
+                        <div class="flex items-center mb-4">
+                            <img src="https://placehold.co/64x64/c026d3/white?text=RA&font=Inter" alt="Author Raj Ahmed" class="w-12 h-12 rounded-full mr-4 object-cover">
+                            <div>
+                                <h4 class="font-semibold text-text-main dark:text-text-main-dark">Raj Ahmed</h4>
+                                <p class="text-xs text-text-muted dark:text-text-muted-dark">Technology Ethicist</p>
+                            </div>
+                        </div>
+                        <span class="category-tag category-opinion mb-2"><i class="fas fa-balance-scale mr-1"></i>Ethics</span>
+                        <a href="#" class="block">
+                            <h3 class="text-lg font-semibold mt-1 mb-2 text-text-main dark:text-text-main-dark hover:text-primary dark:hover:text-primary-light transition-colors duration-200">AI's Double-Edged Sword: Balancing Unprecedented Progress vs. Potential Peril</h3>
+                        </a>
+                        <p class="text-text-muted dark:text-text-muted-dark text-sm mb-3 line-clamp-4">As artificial intelligence continues its rapid advancement, society must proactively and thoughtfully address the profound ethical dilemmas it presents to harness its benefits responsibly and mitigate risks.</p>
+                        <div class="expandable-card-content">
+                            <p class="text-text-muted dark:text-text-muted-dark text-sm">The global conversation around AI governance, algorithmic bias, job displacement, and safety protocols is more urgent than ever. We need robust frameworks for ethical development.</p>
+                        </div>
+                        <div class="flex justify-between items-center mt-4">
+                            <p class="text-xs text-text-muted dark:text-text-muted-dark"><i class="far fa-calendar-alt mr-1"></i>May 17, 2025</p>
+                            <button class="expand-toggle text-xs text-primary dark:text-primary-light font-semibold hover:underline">
+                                Read More <i class="fas fa-chevron-down text-xs ml-1 transform transition-transform duration-300"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-card-light dark:bg-card-dark rounded-lg shadow-lg card-hover-effect border border-border-color-light dark:border-border-color-dark article-card" data-expandable-card>
+                    <div class="p-6 group">
+                         <div class="flex items-center mb-4">
+                            <img src="https://placehold.co/64x64/db2777/white?text=CW&font=Inter" alt="Author Chloe Williams" class="w-12 h-12 rounded-full mr-4 object-cover">
+                            <div>
+                                <h4 class="font-semibold text-text-main dark:text-text-main-dark">Chloe Williams</h4>
+                                <p class="text-xs text-text-muted dark:text-text-muted-dark">Cultural Critic</p>
+                            </div>
+                        </div>
+                        <span class="category-tag category-opinion mb-2"><i class="fas fa-book-open mr-1"></i>Critique</span>
+                        <a href="#" class="block">
+                            <h3 class="text-lg font-semibold mt-1 mb-2 text-text-main dark:text-text-main-dark hover:text-primary dark:hover:text-primary-light transition-colors duration-200">The Evolution of Storytelling in the Digital Age: New Forms, New Voices</h3>
+                        </a>
+                        <p class="text-text-muted dark:text-text-muted-dark text-sm mb-3 line-clamp-4">How new media formats, interactive platforms, and democratized content creation tools are fundamentally reshaping narratives and audience engagement in the 21st century.</p>
+                        <div class="expandable-card-content">
+                            <p class="text-text-muted dark:text-text-muted-dark text-sm">Interactive narratives, immersive VR/AR experiences, and serialized content on streaming platforms are pushing creative boundaries and challenging traditional storytelling conventions.</p>
+                        </div>
+                        <div class="flex justify-between items-center mt-4">
+                           <p class="text-xs text-text-muted dark:text-text-muted-dark"><i class="far fa-calendar-alt mr-1"></i>May 16, 2025</p>
+                            <button class="expand-toggle text-xs text-primary dark:text-primary-light font-semibold hover:underline">
+                                Read More <i class="fas fa-chevron-down text-xs ml-1 transform transition-transform duration-300"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-16">
+            <h2 class="text-3xl md:text-4xl font-extrabold text-text-main dark:text-text-main-dark mb-2 flex items-center">
+                <i class="fas fa-video mr-3 text-primary dark:text-primary-light"></i>Video News
+            </h2>
+            <p class="text-base md:text-lg text-text-muted dark:text-text-muted-dark mb-8">Watch the latest news, documentaries, and exclusive interviews.</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-card-light dark:bg-card-dark rounded-lg shadow-lg overflow-hidden card-hover-effect border border-border-color-light dark:border-border-color-dark article-card group" data-expandable-card>
+                    <a href="#" class="block">
+                        <div class="relative card-image-wrapper overflow-hidden">
+                            <img src="https://placehold.co/700x394/be123c/white?text=Exclusive+Interview&font=Inter" alt="Exclusive Interview with Leader" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                            <div class="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/30 transition-colors duration-300">
+                                <i class="fas fa-play-circle text-white text-5xl opacity-80 group-hover:opacity-100 transition-opacity"></i>
+                            </div>
+                            <span class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded"><i class="far fa-clock mr-1"></i> 5:32</span>
+                        </div>
+                        <div class="p-4">
+                            <span class="category-tag category-video mb-2"><i class="fas fa-film mr-1"></i>Interview</span>
+                            <h3 class="text-md font-semibold mt-1 mb-1 text-text-main dark:text-text-main-dark group-hover:text-primary dark:group-hover:text-primary-light">Exclusive Interview: Leader Discusses Future Policy Plans</h3>
+                            <div class="expandable-card-content mt-1">
+                                <p class="text-text-muted dark:text-text-muted-dark text-xs line-clamp-none">An in-depth conversation about upcoming policy changes, national vision, and challenges on the horizon.</p>
+                            </div>
+                        </div>
+                    </a>
+                    <div class="p-4 pt-0 flex justify-between items-center">
+                        <p class="text-xs text-text-muted dark:text-text-muted-dark"><i class="far fa-user mr-1"></i>NewsPulse Video</p>
+                        <button class="expand-toggle text-xs text-primary dark:text-primary-light font-semibold hover:underline">
+                            Details <i class="fas fa-chevron-down text-xs ml-1 transform transition-transform duration-300"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-card-light dark:bg-card-dark rounded-lg shadow-lg overflow-hidden card-hover-effect border border-border-color-light dark:border-border-color-dark article-card group" data-expandable-card>
+                    <a href="#" class="block">
+                        <div class="relative card-image-wrapper overflow-hidden">
+                            <img src="https://placehold.co/700x394/e11d48/white?text=Urban+Wildlife+Doc&font=Inter" alt="Urban Wildlife Documentary" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                            <div class="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/30 transition-colors duration-300">
+                                <i class="fas fa-play-circle text-white text-5xl opacity-80 group-hover:opacity-100 transition-opacity"></i>
+                            </div>
+                             <span class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded"><i class="far fa-clock mr-1"></i> 12:15</span>
+                        </div>
+                        <div class="p-4">
+                            <span class="category-tag category-video mb-2"><i class="fas fa-camera-retro mr-1"></i>Documentary</span>
+                            <h3 class="text-md font-semibold mt-1 mb-1 text-text-main dark:text-text-main-dark group-hover:text-primary dark:group-hover:text-primary-light">The Hidden World of Urban Wildlife: Adapting to City Life</h3>
+                            <div class="expandable-card-content mt-1">
+                                <p class="text-text-muted dark:text-text-muted-dark text-xs line-clamp-none">A fascinating look at the diverse animals thriving in our cities, often unseen, and the unique ways they adapt to urban environments.</p>
+                            </div>
+                        </div>
+                    </a>
+                     <div class="p-4 pt-0 flex justify-between items-center">
+                        <p class="text-xs text-text-muted dark:text-text-muted-dark"><i class="far fa-user mr-1"></i>Nature Docs</p>
+                        <button class="expand-toggle text-xs text-primary dark:text-primary-light font-semibold hover:underline">
+                            Details <i class="fas fa-chevron-down text-xs ml-1 transform transition-transform duration-300"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-card-light dark:bg-card-dark rounded-lg shadow-lg overflow-hidden card-hover-effect border border-border-color-light dark:border-border-color-dark article-card group" data-expandable-card>
+                    <a href="#" class="block">
+                        <div class="relative card-image-wrapper overflow-hidden">
+                            <img src="https://placehold.co/700x394/f43f5e/white?text=Smartwatch+Review&font=Inter" alt="Latest Smartwatch Review" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                            <div class="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/30 transition-colors duration-300">
+                                <i class="fas fa-play-circle text-white text-5xl opacity-80 group-hover:opacity-100 transition-opacity"></i>
+                            </div>
+                            <span class="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded"><i class="far fa-clock mr-1"></i> 3:40</span>
+                        </div>
+                        <div class="p-4">
+                            <span class="category-tag category-video mb-2"><i class="fas fa-cogs mr-1"></i>Tech Review</span>
+                            <h3 class="text-md font-semibold mt-1 mb-1 text-text-main dark:text-text-main-dark group-hover:text-primary dark:group-hover:text-primary-light">Hands-On with the Latest Smartwatch: Features & Performance</h3>
+                             <div class="expandable-card-content mt-1">
+                                <p class="text-text-muted dark:text-text-muted-dark text-xs line-clamp-none">Our first impressions, detailed feature breakdown, and performance tests of the newest wearable technology hitting the market.</p>
+                            </div>
+                        </div>
+                    </a>
+                    <div class="p-4 pt-0 flex justify-between items-center">
+                        <p class="text-xs text-text-muted dark:text-text-muted-dark"><i class="far fa-user mr-1"></i>Gadget Gurus</p>
+                        <button class="expand-toggle text-xs text-primary dark:text-primary-light font-semibold hover:underline">
+                           Details <i class="fas fa-chevron-down text-xs ml-1 transform transition-transform duration-300"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-16">
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            <div class="lg:col-span-2">
+              <h2 class="text-3xl md:text-4xl font-extrabold text-text-main dark:text-text-main-dark mb-2 flex items-center">
+                <i class="fas fa-book-reader mr-3 text-primary dark:text-primary-light"></i>Most Read This Week
+              </h2>
+              <p class="text-base md:text-lg text-text-muted dark:text-text-muted-dark mb-8">
+                Catch up on the stories everyone is talking about.
+              </p>
+              <ul class="space-y-4">
+                <li class="group">
+                  <a href="#" class="flex items-start space-x-4 p-4 bg-card-light dark:bg-card-dark rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all duration-200 border border-border-color-light dark:border-border-color-dark card-hover-effect">
+                    <span class="text-3xl font-bold text-primary dark:text-primary-light group-hover:text-primary-dark dark:group-hover:text-sky-300">01</span>
+                    <div class="flex-1">
+                      <h4 class="font-semibold text-text-main dark:text-text-main-dark group-hover:text-primary dark:group-hover:text-primary-light leading-tight">
+                        Breakthrough in Alzheimer's Research Announced by International Team of Scientists
+                      </h4>
+                      <p class="text-xs text-text-muted dark:text-text-muted-dark mt-1">
+                        <i class="fas fa-tags mr-1 opacity-70"></i>Health, Science, Research
+                      </p>
+                    </div>
+                     <i class="fas fa-arrow-right text-text-muted dark:text-text-muted-dark group-hover:text-primary dark:group-hover:text-primary-light self-center ml-2 transition-transform group-hover:translate-x-1"></i>
+                  </a>
+                </li>
+                 <li class="group">
+                  <a href="#" class="flex items-start space-x-4 p-4 bg-card-light dark:bg-card-dark rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all duration-200 border border-border-color-light dark:border-border-color-dark card-hover-effect">
+                    <span class="text-3xl font-bold text-primary dark:text-primary-light group-hover:text-primary-dark dark:group-hover:text-sky-300">02</span>
+                    <div class="flex-1">
+                      <h4 class="font-semibold text-text-main dark:text-text-main-dark group-hover:text-primary dark:group-hover:text-primary-light leading-tight">
+                        Global Stock Markets React to Unexpected Interest Rate Hike
+                      </h4>
+                      <p class="text-xs text-text-muted dark:text-text-muted-dark mt-1">
+                        <i class="fas fa-tags mr-1 opacity-70"></i>Business, Economy, Finance
+                      </p>
+                    </div>
+                    <i class="fas fa-arrow-right text-text-muted dark:text-text-muted-dark group-hover:text-primary dark:group-hover:text-primary-light self-center ml-2 transition-transform group-hover:translate-x-1"></i>
+                  </a>
+                </li>
+                 <li class="group">
+                  <a href="#" class="flex items-start space-x-4 p-4 bg-card-light dark:bg-card-dark rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all duration-200 border border-border-color-light dark:border-border-color-dark card-hover-effect">
+                    <span class="text-3xl font-bold text-primary dark:text-primary-light group-hover:text-primary-dark dark:group-hover:text-sky-300">03</span>
+                    <div class="flex-1">
+                      <h4 class="font-semibold text-text-main dark:text-text-main-dark group-hover:text-primary dark:group-hover:text-primary-light leading-tight">
+                        The Rise of AI in Creative Industries: Collaboration or Competition?
+                      </h4>
+                      <p class="text-xs text-text-muted dark:text-text-muted-dark mt-1">
+                        <i class="fas fa-tags mr-1 opacity-70"></i>Technology, Arts, Opinion
+                      </p>
+                    </div>
+                    <i class="fas fa-arrow-right text-text-muted dark:text-text-muted-dark group-hover:text-primary dark:group-hover:text-primary-light self-center ml-2 transition-transform group-hover:translate-x-1"></i>
+                  </a>
+                </li>
+                <li class="group">
+                  <a href="#" class="flex items-start space-x-4 p-4 bg-card-light dark:bg-card-dark rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all duration-200 border border-border-color-light dark:border-border-color-dark card-hover-effect">
+                    <span class="text-3xl font-bold text-primary dark:text-primary-light group-hover:text-primary-dark dark:group-hover:text-sky-300">04</span>
+                    <div class="flex-1">
+                      <h4 class="font-semibold text-text-main dark:text-text-main-dark group-hover:text-primary dark:group-hover:text-primary-light leading-tight">
+                        Travel Guide: Top Eco-Friendly Destinations for Conscious Globetrotters in 2025
+                      </h4>
+                      <p class="text-xs text-text-muted dark:text-text-muted-dark mt-1">
+                        <i class="fas fa-tags mr-1 opacity-70"></i>Travel, Lifestyle, Sustainability
+                      </p>
+                    </div>
+                    <i class="fas fa-arrow-right text-text-muted dark:text-text-muted-dark group-hover:text-primary dark:group-hover:text-primary-light self-center ml-2 transition-transform group-hover:translate-x-1"></i>
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <div class="lg:col-span-1">
+              <h2 class="text-3xl md:text-4xl font-extrabold text-text-main dark:text-text-main-dark mb-2 flex items-center">
+                <i class="fas fa-compass mr-3 text-primary dark:text-primary-light"></i>Explore Categories
+              </h2>
+              <p class="text-base md:text-lg text-text-muted dark:text-text-muted-dark mb-8">
+                Find news tailored to your interests.
+              </p>
+              <div class="space-y-4">
+                <a href="#world" class="group flex items-center justify-between p-5 rounded-lg bg-sky-500 hover:bg-sky-600 text-white font-semibold transition-all duration-200 card-hover-effect shadow-md hover:shadow-lg">
+                  <span class="flex items-center"><i class="fas fa-globe-americas mr-3 text-2xl"></i>World</span>
+                  <i class="fas fa-arrow-right transform transition-transform group-hover:translate-x-1"></i>
+                </a>
+                <a href="#tech" class="group flex items-center justify-between p-5 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-semibold transition-all duration-200 card-hover-effect shadow-md hover:shadow-lg">
+                  <span class="flex items-center"><i class="fas fa-microchip mr-3 text-2xl"></i>Technology</span>
+                  <i class="fas fa-arrow-right transform transition-transform group-hover:translate-x-1"></i>
+                </a>
+                <a href="#" class="group flex items-center justify-between p-5 rounded-lg bg-red-500 hover:bg-red-600 text-white font-semibold transition-all duration-200 card-hover-effect shadow-md hover:shadow-lg">
+                  <span class="flex items-center"><i class="fas fa-landmark mr-3 text-2xl"></i>Politics</span>
+                  <i class="fas fa-arrow-right transform transition-transform group-hover:translate-x-1"></i>
+                </a>
+                <a href="#" class="group flex items-center justify-between p-5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-semibold transition-all duration-200 card-hover-effect shadow-md hover:shadow-lg">
+                  <span class="flex items-center"><i class="fas fa-briefcase mr-3 text-2xl"></i>Business</span>
+                  <i class="fas fa-arrow-right transform transition-transform group-hover:translate-x-1"></i>
+                </a>
+                <a href="#" class="group flex items-center justify-between p-5 rounded-lg bg-purple-500 hover:bg-purple-600 text-white font-semibold transition-all duration-200 card-hover-effect shadow-md hover:shadow-lg">
+                  <span class="flex items-center"><i class="fas fa-futbol mr-3 text-2xl"></i>Sports</span>
+                  <i class="fas fa-arrow-right transform transition-transform group-hover:translate-x-1"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="bg-gradient-to-r from-primary to-sky-600 dark:from-primary-dark dark:to-sky-800 text-white py-16 px-6 rounded-xl shadow-xl mb-12">
+            <div class="container mx-auto text-center">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4"><i class="fas fa-envelope-open-text mr-2"></i>Stay Ahead with NewsPulse</h2>
+                <p class="text-lg text-primary-text-light dark:text-primary-text-dark mb-8 max-w-2xl mx-auto">Subscribe for daily updates, in-depth analysis, and breaking news alerts straight to your inbox. No spam, ever.</p>
+                <form class="max-w-lg mx-auto">
+                    <div class="flex flex-col sm:flex-row items-stretch sm:shadow-lg rounded-md overflow-hidden">
+                        <div class="relative flex-grow">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 z-10"><i class="fas fa-at"></i></span>
+                            <input type="email" placeholder="Enter your email address" class="w-full pl-12 pr-4 py-4 text-slate-800 bg-white dark:bg-slate-100 focus:ring-4 focus:ring-sky-300 dark:focus:ring-sky-400 outline-none border-0 sm:rounded-r-none text-base" required>
+                        </div>
+                        <button type="submit" class="bg-sky-400 hover:bg-sky-300 dark:bg-sky-500 dark:hover:bg-sky-600 text-white font-semibold px-8 py-4 transition-colors duration-300 sm:rounded-l-none w-full sm:w-auto flex items-center justify-center text-base mt-3 sm:mt-0">
+                            <i class="fas fa-paper-plane mr-2"></i>Subscribe Now
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-800 dark:bg-slate-900 text-slate-400 dark:text-slate-500 pt-16 pb-8 border-t-4 border-primary dark:border-primary-dark">
+        <div class="container mx-auto px-4 lg:px-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
+                <div>
+                    <h3 class="text-xl font-bold text-sky-400 dark:text-sky-500 mb-4 flex items-center"><i class="fas fa-bolt mr-2"></i>News<span class="text-sky-500 dark:text-sky-600">Pulse</span></h3>
+                    <p class="text-sm mb-6">Your daily pulse on the world. Delivering trustworthy, timely, and engaging news with speed and accuracy.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" aria-label="Facebook" class="text-slate-500 hover:text-sky-400 transition-colors duration-200"><i class="fab fa-facebook-f fa-lg"></i></a>
+                        <a href="#" aria-label="Twitter" class="text-slate-500 hover:text-sky-400 transition-colors duration-200"><i class="fab fa-x-twitter fa-lg"></i></a>
+                        <a href="#" aria-label="Instagram" class="text-slate-500 hover:text-sky-400 transition-colors duration-200"><i class="fab fa-instagram fa-lg"></i></a>
+                        <a href="#" aria-label="LinkedIn" class="text-slate-500 hover:text-sky-400 transition-colors duration-200"><i class="fab fa-linkedin-in fa-lg"></i></a>
+                         <a href="#" aria-label="Youtube" class="text-slate-500 hover:text-sky-400 transition-colors duration-200"><i class="fab fa-youtube fa-lg"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold text-slate-200 dark:text-slate-300 mb-5 flex items-center"><i class="fas fa-list-ul mr-2 opacity-80"></i>Quick Links</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="#" class="hover:text-sky-400 transition-colors flex items-center"><i class="fas fa-angle-right mr-2 opacity-60"></i>Home</a></li>
+                        <li><a href="#latest" class="hover:text-sky-400 transition-colors flex items-center"><i class="fas fa-angle-right mr-2 opacity-60"></i>Latest News</a></li>
+                        <li><a href="#categories" class="hover:text-sky-400 transition-colors flex items-center"><i class="fas fa-angle-right mr-2 opacity-60"></i>Categories</a></li>
+                        <li><a href="#world" class="hover:text-sky-400 transition-colors flex items-center"><i class="fas fa-angle-right mr-2 opacity-60"></i>World News</a></li>
+                        <li><a href="#tech" class="hover:text-sky-400 transition-colors flex items-center"><i class="fas fa-angle-right mr-2 opacity-60"></i>Technology</a></li>
+                        <li><a href="#opinion" class="hover:text-sky-400 transition-colors flex items-center"><i class="fas fa-angle-right mr-2 opacity-60"></i>Opinion</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold text-slate-200 dark:text-slate-300 mb-5 flex items-center"><i class="fas fa-building mr-2 opacity-80"></i>Company</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="#" class="hover:text-sky-400 transition-colors flex items-center"><i class="fas fa-angle-right mr-2 opacity-60"></i>About Us</a></li>
+                        <li><a href="#" class="hover:text-sky-400 transition-colors flex items-center"><i class="fas fa-angle-right mr-2 opacity-60"></i>Contact</a></li>
+                        <li><a href="#" class="hover:text-sky-400 transition-colors flex items-center"><i class="fas fa-angle-right mr-2 opacity-60"></i>Careers</a></li>
+                        <li><a href="#" class="hover:text-sky-400 transition-colors flex items-center"><i class="fas fa-angle-right mr-2 opacity-60"></i>Advertise With Us</a></li>
+                        <li><a href="#" class="hover:text-sky-400 transition-colors flex items-center"><i class="fas fa-angle-right mr-2 opacity-60"></i>Press Kit</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold text-slate-200 dark:text-slate-300 mb-5 flex items-center"><i class="fas fa-gavel mr-2 opacity-80"></i>Legal</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="#" class="hover:text-sky-400 transition-colors flex items-center"><i class="fas fa-angle-right mr-2 opacity-60"></i>Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-sky-400 transition-colors flex items-center"><i class="fas fa-angle-right mr-2 opacity-60"></i>Terms of Service</a></li>
+                        <li><a href="#" class="hover:text-sky-400 transition-colors flex items-center"><i class="fas fa-angle-right mr-2 opacity-60"></i>Cookie Policy</a></li>
+                        <li><a href="#" class="hover:text-sky-400 transition-colors flex items-center"><i class="fas fa-angle-right mr-2 opacity-60"></i>Accessibility</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-slate-700 dark:border-slate-800 pt-8 text-center">
+                <p class="text-sm">&copy; <span id="currentYear"></span> NewsPulse. All Rights Reserved. Designed with <i class="fas fa-heart text-red-500 hover:animate-ping_slow_once" style="animation-duration: 1.5s;"></i> by an AI Enthusiast.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="searchModal" class="fixed inset-0 bg-slate-900/80 dark:bg-black/70 backdrop-blur-lg flex items-center justify-center p-4 z-[999] hidden" role="dialog" aria-modal="true" aria-labelledby="searchModalTitle">
+        <div
+            id="searchModalContent"
+            class="bg-card-light dark:bg-card-dark p-6 sm:p-8 rounded-xl shadow-2xl w-full max-w-2xl relative transform transition-all duration-300 ease-out scale-95 opacity-0"
+        >
+            <button id="closeSearchModal" aria-label="Close search" class="absolute top-4 right-5 text-text-muted dark:text-text-muted-dark hover:text-primary dark:hover:text-primary-light text-2xl p-1 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 id="searchModalTitle" class="text-2xl font-semibold text-text-main dark:text-text-main-dark mb-6 flex items-center"><i class="fas fa-search text-primary dark:text-primary-light mr-3"></i>Search NewsPulse</h2>
+            <form action="#" method="GET" role="search">
+                <div class="relative">
+                     <span class="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted dark:text-text-muted-dark pointer-events-none"><i class="fas fa-keyboard"></i></span>
+                    <input type="search" name="query" id="searchInput" placeholder="Type keywords and press Enter..." class="w-full py-3.5 pl-12 pr-12 text-base text-text-main dark:text-text-main-dark bg-slate-100 dark:bg-slate-700 border-2 border-border-color-light dark:border-border-color-dark rounded-lg focus:ring-2 focus:ring-primary dark:focus:ring-primary-light focus:border-primary dark:focus:border-primary-light outline-none transition-colors" autofocus>
+                    <button type="submit" aria-label="Submit search" class="absolute right-0 top-0 h-full px-5 text-primary dark:text-primary-light hover:text-primary-dark dark:hover:text-sky-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary dark:focus:ring-primary-light">
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </form>
+            <p class="text-xs text-text-muted dark:text-text-muted-dark mt-4">e.g., "climate change", "tech innovations 2025", "election results"</p>
+        </div>
+    </div>
+
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const menuIconOpen = document.getElementById('menuIconOpen');
+        const menuIconClose = document.getElementById('menuIconClose');
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const htmlElement = document.documentElement;
+
+        const searchIconBtn = document.getElementById('searchIconBtn');
+        const searchModal = document.getElementById('searchModal');
+        const searchModalContent = document.getElementById('searchModalContent');
+        const closeSearchModalBtn = document.getElementById('closeSearchModal');
+        const searchInput = document.getElementById('searchInput');
+
+        // Mobile Menu Toggle
+        if (mobileMenuBtn && mobileMenu && menuIconOpen && menuIconClose) {
+            mobileMenuBtn.addEventListener('click', () => {
+                const isHidden = mobileMenu.classList.toggle('hidden');
+                menuIconOpen.classList.toggle('hidden', !isHidden);
+                menuIconClose.classList.toggle('hidden', isHidden);
+                mobileMenuBtn.setAttribute('aria-expanded', !isHidden);
+            });
+        }
+
+        // Dark Mode Toggle
+        const sunIcon = darkModeToggle?.querySelector('.fa-sun');
+        const moonIcon = darkModeToggle?.querySelector('.fa-moon');
+
+        const applyTheme = (theme) => {
+            if (theme === 'dark') {
+                htmlElement.classList.add('dark');
+                if (sunIcon) sunIcon.classList.add('hidden');
+                if (moonIcon) moonIcon.classList.remove('hidden');
+            } else {
+                htmlElement.classList.remove('dark');
+                if (sunIcon) sunIcon.classList.remove('hidden');
+                if (moonIcon) moonIcon.classList.add('hidden');
+            }
+        };
+
+        if (darkModeToggle && sunIcon && moonIcon) {
+            darkModeToggle.addEventListener('click', () => {
+                const isDarkMode = htmlElement.classList.toggle('dark');
+                localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+                applyTheme(isDarkMode ? 'dark' : 'light');
+            });
+        }
+
+        // Initialize theme based on localStorage or system preference
+        const savedTheme = localStorage.getItem('theme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        if (savedTheme) {
+            applyTheme(savedTheme);
+        } else if (systemPrefersDark) {
+            applyTheme('dark');
+        } else {
+            applyTheme('light'); // Default to light
+        }
+
+        // Set current year in footer
+        const currentYearElement = document.getElementById('currentYear');
+        if (currentYearElement) {
+            currentYearElement.textContent = new Date().getFullYear();
+        }
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const targetId = this.getAttribute('href');
+                if (targetId === '#' || targetId === '') return; // Ignore empty or # only hashes
+
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    e.preventDefault(); // Prevent default only if target exists
+                    // Close mobile menu if open
+                    if (mobileMenu && !mobileMenu.classList.contains('hidden') && window.innerWidth < 768) {
+                        mobileMenu.classList.add('hidden');
+                        if(menuIconOpen) menuIconOpen.classList.remove('hidden');
+                        if(menuIconClose) menuIconClose.classList.add('hidden');
+                        if(mobileMenuBtn) mobileMenuBtn.setAttribute('aria-expanded', 'false');
+                    }
+                    // Calculate scroll position
+                    const headerOffset = document.querySelector('header')?.offsetHeight || 64; // Height of sticky header
+                    const elementPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
+                    const offsetPosition = elementPosition - headerOffset - 20; // 20px additional offset
+
+                    window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+                }
+            });
+        });
+
+        // Search Modal Functionality
+        const openSearchModal = () => {
+            if (searchModal && searchModalContent) {
+                searchModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; // Prevent background scroll
+                setTimeout(() => { // Delay for transition
+                    searchModalContent.classList.add('scale-100', 'opacity-100');
+                    searchModalContent.classList.remove('scale-95', 'opacity-0');
+                    if(searchInput) searchInput.focus();
+                }, 10);
+            }
+        };
+
+        const closeSearch = () => {
+            if (searchModal && searchModalContent) {
+                searchModalContent.classList.remove('scale-100', 'opacity-100');
+                searchModalContent.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    searchModal.classList.add('hidden');
+                    document.body.style.overflow = ''; // Restore background scroll
+                }, 300); // Match transition duration
+            }
+        };
+
+        if (searchIconBtn) searchIconBtn.addEventListener('click', openSearchModal);
+        if (closeSearchModalBtn) closeSearchModalBtn.addEventListener('click', closeSearch);
+        if (searchModal) {
+            // Close modal on Escape key
+            searchModal.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSearch(); });
+            // Close modal on clicking outside the content
+            searchModal.addEventListener('click', (e) => { if (e.target === searchModal) closeSearch(); });
+        }
+
+        // Click-to-Expand Card Logic
+        const expandableCards = document.querySelectorAll('[data-expandable-card]');
+        expandableCards.forEach(card => {
+            const contentToExpand = card.querySelector('.expandable-card-content');
+            const toggleButton = card.querySelector('.expand-toggle');
+            const toggleText = card.querySelector('.expand-toggle .toggle-text'); // For "More"/"Less" text
+            const toggleIcon = card.querySelector('.expand-toggle .fa-chevron-down');
+
+            if (!contentToExpand || !toggleButton) return;
+
+            toggleButton.addEventListener('click', (event) => {
+                event.preventDefault(); // Prevent link navigation if button is inside <a>
+                event.stopPropagation(); // Stop event from bubbling up to parent <a>
+
+                const isExpanded = contentToExpand.classList.toggle('is-expanded');
+                
+                if (isExpanded) {
+                    contentToExpand.style.maxHeight = contentToExpand.scrollHeight + 'px';
+                    if(toggleText) toggleText.textContent = 'Less';
+                    else toggleButton.childNodes[0].nodeValue = "Read Less "; // If no span for text
+                    if(toggleIcon) toggleIcon.classList.add('rotate-180');
+                    toggleButton.setAttribute('aria-expanded', 'true');
+                } else {
+                    contentToExpand.style.maxHeight = '0px';
+                    if(toggleText) toggleText.textContent = 'More';
+                    else toggleButton.childNodes[0].nodeValue = "Read More ";
+                    if(toggleIcon) toggleIcon.classList.remove('rotate-180');
+                    toggleButton.setAttribute('aria-expanded', 'false');
+                }
+            });
+        });
+    });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        new Swiper(".hero-swiper", {
+          loop: true,
+          effect: 'fade', // Added fade effect
+          fadeEffect: {
+            crossFade: true
+          },
+          autoplay: {
+            delay: 5000,
+            disableOnInteraction: false,
+          },
+          pagination: {
+            el: ".swiper-pagination",
+            clickable: true,
+            dynamicBullets: true, // Added dynamic bullets
+          },
+          navigation: {
+            nextEl: ".swiper-button-next",
+            prevEl: ".swiper-button-prev",
+          },
+          keyboard: { // Added keyboard control
+            enabled: true,
+            onlyInViewport: false,
+          },
+        });
+      });
+    </script>
+</body>
+</html>
+
